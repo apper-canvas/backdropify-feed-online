@@ -97,10 +97,10 @@ const Home = () => {
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.6, delay: 0.8 }}
             >
-              {[
+{[
                 { icon: "Upload", title: "Easy Upload", desc: "Drag & drop your images instantly" },
-                { icon: "Layers", title: "Smart Blending", desc: "Professional background integration" },
-                { icon: "Download", title: "Export Ready", desc: "High-quality downloads in multiple formats" }
+                { icon: "Type", title: "Custom Text", desc: "Add any text behind your images" },
+                { icon: "Download", title: "Export Ready", desc: "Download your text-behind-image creations" }
               ].map((feature, index) => (
                 <motion.div 
                   key={index}

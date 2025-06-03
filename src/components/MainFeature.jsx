@@ -7,7 +7,7 @@ import imageService from '../services/api/imageService'
 import compositeImageService from '../services/api/compositeImageService'
 
 const MainFeature = () => {
-  // State management
+// State management
   const [uploadedImage, setUploadedImage] = useState(null)
   const [selectedBackground, setSelectedBackground] = useState(null)
   const [backgrounds, setBackgrounds] = useState([])
@@ -16,6 +16,14 @@ const MainFeature = () => {
   const [activeCategory, setActiveCategory] = useState('all')
   const [searchTerm, setSearchTerm] = useState('')
   const [backgroundName, setBackgroundName] = useState('')
+  const [text, setText] = useState('')
+  const [textSettings, setTextSettings] = useState({
+    size: 48,
+    color: '#000000',
+    opacity: 50,
+    positionX: 50,
+    positionY: 50
+  })
   const [adjustments, setAdjustments] = useState({
     opacity: 100,
     blur: 0,
@@ -57,7 +65,6 @@ const MainFeature = () => {
       toast.error("File size must be less than 10MB")
       return
     }
-
 setIsProcessing(true)
     try {
       const reader = new FileReader()
@@ -127,9 +134,17 @@ setIsProcessing(true)
     }
   }
 
-  // Handle adjustment changes
+// Handle adjustment changes
   const handleAdjustmentChange = (key, value) => {
     setAdjustments(prev => ({
+      ...prev,
+      [key]: value
+    }))
+  }
+
+  // Handle text setting changes
+  const handleTextSettingChange = (key, value) => {
+    setTextSettings(prev => ({
       ...prev,
       [key]: value
     }))
@@ -167,10 +182,18 @@ setIsProcessing(true)
     }
   }
 
-  // Reset all
+// Reset all
   const handleReset = () => {
     setUploadedImage(null)
     setSelectedBackground(null)
+    setText('')
+    setTextSettings({
+      size: 48,
+      color: '#000000',
+      opacity: 50,
+      positionX: 50,
+      positionY: 50
+    })
     setAdjustments({
       opacity: 100,
       blur: 0,
@@ -182,16 +205,16 @@ setIsProcessing(true)
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto">
+    <div className="w-full max-w-6xl mx-auto">
       <motion.div 
-        className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8"
+        className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6 }}
       >
         {/* Upload & Controls Panel */}
         <motion.div 
-          className="lg:col-span-1 space-y-6"
+          className="space-y-6"
           initial={{ x: -50, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.2 }}
@@ -239,7 +262,7 @@ setIsProcessing(true)
                     alt="Uploaded" 
                     className="w-20 h-20 object-cover rounded-lg shadow-card"
                   />
-<p className="text-sm font-medium text-surface-900 dark:text-surface-100">
+                  <p className="text-sm font-medium text-surface-900 dark:text-surface-100">
                     {uploadedImage.displayName || uploadedImage.name}
                   </p>
                   <p className="text-xs text-surface-500">
@@ -257,26 +280,36 @@ setIsProcessing(true)
                       or click to browse
                     </p>
                   </div>
-</div>
+                </div>
               )}
             </div>
+          </div>
+
+          {/* Text Input Section */}
+          <div className="bg-white/80 dark:bg-surface-800/80 backdrop-blur-xl rounded-2xl p-6 shadow-card border border-surface-200/50 dark:border-surface-700/50">
+            <h3 className="text-xl font-semibold mb-4 flex items-center space-x-2">
+              <ApperIcon name="Type" className="w-5 h-5 text-primary-500" />
+              <span>Add Text</span>
+            </h3>
             
-            {/* Background Name Input */}
-            <div className="mt-4">
-              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
-                Background Name (Optional)
-              </label>
-              <input
-                type="text"
-                value={backgroundName}
-                onChange={(e) => setBackgroundName(e.target.value)}
-                placeholder="Enter a name for this background..."
-                className="w-full px-4 py-2 bg-surface-100 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-300"
-              />
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
+                  Your Text
+                </label>
+                <textarea
+                  value={text}
+                  onChange={(e) => setText(e.target.value)}
+                  placeholder="Enter the text you want behind your image..."
+                  rows={3}
+                  className="w-full px-4 py-3 bg-surface-100 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-300 resize-none"
+                />
+              </div>
             </div>
           </div>
-          {/* Adjustment Controls */}
-          {uploadedImage && selectedBackground && (
+
+          {/* Text Controls */}
+          {uploadedImage && text && (
             <motion.div 
               className="bg-white/80 dark:bg-surface-800/80 backdrop-blur-xl rounded-2xl p-6 shadow-card border border-surface-200/50 dark:border-surface-700/50"
               initial={{ y: 20, opacity: 0 }}
@@ -285,36 +318,97 @@ setIsProcessing(true)
             >
               <h3 className="text-xl font-semibold mb-4 flex items-center space-x-2">
                 <ApperIcon name="Settings" className="w-5 h-5 text-primary-500" />
-                <span>Adjustments</span>
+                <span>Text Settings</span>
               </h3>
               
               <div className="space-y-4">
-                {[
-                  { key: 'opacity', label: 'Opacity', min: 0, max: 100, unit: '%' },
-                  { key: 'blur', label: 'Background Blur', min: 0, max: 10, unit: 'px' },
-                  { key: 'scale', label: 'Image Scale', min: 50, max: 200, unit: '%' },
-                  { key: 'positionX', label: 'Horizontal Position', min: 0, max: 100, unit: '%' },
-                  { key: 'positionY', label: 'Vertical Position', min: 0, max: 100, unit: '%' }
-                ].map(({ key, label, min, max, unit }) => (
-                  <div key={key}>
-                    <div className="flex justify-between mb-2">
-                      <label className="text-sm font-medium text-surface-700 dark:text-surface-300">
-                        {label}
-                      </label>
-                      <span className="text-sm text-surface-500">
-                        {adjustments[key]}{unit}
-                      </span>
-                    </div>
-                    <input
-                      type="range"
-                      min={min}
-                      max={max}
-                      value={adjustments[key]}
-                      onChange={(e) => handleAdjustmentChange(key, parseInt(e.target.value))}
-                      className="w-full h-2 bg-surface-200 dark:bg-surface-700 rounded-lg appearance-none cursor-pointer slider"
-                    />
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <label className="text-sm font-medium text-surface-700 dark:text-surface-300">
+                      Text Size
+                    </label>
+                    <span className="text-sm text-surface-500">
+                      {textSettings.size}px
+                    </span>
                   </div>
-                ))}
+                  <input
+                    type="range"
+                    min={20}
+                    max={120}
+                    value={textSettings.size}
+                    onChange={(e) => handleTextSettingChange('size', parseInt(e.target.value))}
+                    className="w-full h-2 bg-surface-200 dark:bg-surface-700 rounded-lg appearance-none cursor-pointer slider"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
+                    Text Color
+                  </label>
+                  <input
+                    type="color"
+                    value={textSettings.color}
+                    onChange={(e) => handleTextSettingChange('color', e.target.value)}
+                    className="w-full h-10 bg-surface-100 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg cursor-pointer"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <label className="text-sm font-medium text-surface-700 dark:text-surface-300">
+                      Text Opacity
+                    </label>
+                    <span className="text-sm text-surface-500">
+                      {textSettings.opacity}%
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min={10}
+                    max={100}
+                    value={textSettings.opacity}
+                    onChange={(e) => handleTextSettingChange('opacity', parseInt(e.target.value))}
+                    className="w-full h-2 bg-surface-200 dark:bg-surface-700 rounded-lg appearance-none cursor-pointer slider"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <label className="text-sm font-medium text-surface-700 dark:text-surface-300">
+                      Horizontal Position
+                    </label>
+                    <span className="text-sm text-surface-500">
+                      {textSettings.positionX}%
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min={0}
+                    max={100}
+                    value={textSettings.positionX}
+                    onChange={(e) => handleTextSettingChange('positionX', parseInt(e.target.value))}
+                    className="w-full h-2 bg-surface-200 dark:bg-surface-700 rounded-lg appearance-none cursor-pointer slider"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <label className="text-sm font-medium text-surface-700 dark:text-surface-300">
+                      Vertical Position
+                    </label>
+                    <span className="text-sm text-surface-500">
+                      {textSettings.positionY}%
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min={0}
+                    max={100}
+                    value={textSettings.positionY}
+                    onChange={(e) => handleTextSettingChange('positionY', parseInt(e.target.value))}
+                    className="w-full h-2 bg-surface-200 dark:bg-surface-700 rounded-lg appearance-none cursor-pointer slider"
+                  />
+                </div>
               </div>
             </motion.div>
           )}
@@ -329,7 +423,7 @@ setIsProcessing(true)
             >
               <button
                 onClick={handleDownload}
-                disabled={!selectedBackground || isProcessing}
+                disabled={!text.trim() || isProcessing}
                 className="w-full flex items-center justify-center space-x-2 px-6 py-3 bg-gradient-to-r from-primary-500 to-secondary-500 text-white rounded-xl font-medium shadow-card hover:shadow-soft transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isProcessing ? (
@@ -337,7 +431,7 @@ setIsProcessing(true)
                 ) : (
                   <ApperIcon name="Download" className="w-5 h-5" />
                 )}
-                <span>Download Composite</span>
+                <span>Download Image</span>
               </button>
               
               <button
@@ -353,9 +447,8 @@ setIsProcessing(true)
 
         {/* Preview Canvas */}
         <motion.div 
-          className="lg:col-span-1"
-          initial={{ y: 50, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
+          initial={{ x: 50, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.4 }}
         >
           <div className="bg-white/80 dark:bg-surface-800/80 backdrop-blur-xl rounded-2xl p-6 shadow-card border border-surface-200/50 dark:border-surface-700/50">
@@ -365,143 +458,45 @@ setIsProcessing(true)
             </h3>
             
             <div className="relative aspect-square rounded-xl overflow-hidden image-canvas border-2 border-surface-200 dark:border-surface-700">
-              {selectedBackground && (
-                <img
-                  src={selectedBackground.fullUrl}
-                  alt="Background"
-                  className="absolute inset-0 w-full h-full object-cover"
+              {/* Background Text */}
+              {text && (
+                <div 
+                  className="absolute inset-0 flex items-center justify-center text-center font-bold leading-tight"
                   style={{
-                    filter: `blur(${adjustments.blur}px)`,
-                    opacity: adjustments.opacity / 100
+                    fontSize: `${textSettings.size}px`,
+                    color: textSettings.color,
+                    opacity: textSettings.opacity / 100,
+                    left: `${textSettings.positionX}%`,
+                    top: `${textSettings.positionY}%`,
+                    transform: 'translate(-50%, -50%)',
+                    zIndex: 1,
+                    wordBreak: 'break-word',
+                    maxWidth: '90%'
                   }}
-                />
+                >
+                  {text}
+                </div>
               )}
               
+              {/* Foreground Image */}
               {uploadedImage && (
                 <img
                   src={uploadedImage.url}
                   alt="Foreground"
-                  className="absolute object-contain transition-all duration-300"
+                  className="absolute inset-0 w-full h-full object-contain"
                   style={{
-                    transform: `scale(${adjustments.scale / 100})`,
-                    left: `${adjustments.positionX}%`,
-                    top: `${adjustments.positionY}%`,
-                    maxWidth: '80%',
-                    maxHeight: '80%',
-                    transform: `translate(-50%, -50%) scale(${adjustments.scale / 100})`
+                    zIndex: 2
                   }}
                 />
               )}
               
-              {!uploadedImage && !selectedBackground && (
+              {!uploadedImage && (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="text-center text-surface-400">
                     <ApperIcon name="ImageIcon" className="w-16 h-16 mx-auto mb-3" />
                     <p className="text-lg font-medium">Preview Area</p>
-                    <p className="text-sm">Upload an image and select a background</p>
+                    <p className="text-sm">Upload an image and add text</p>
                   </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Background Gallery */}
-        <motion.div 
-          className="lg:col-span-1"
-          initial={{ x: 50, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
-        >
-          <div className="bg-white/80 dark:bg-surface-800/80 backdrop-blur-xl rounded-2xl p-6 shadow-card border border-surface-200/50 dark:border-surface-700/50 h-fit max-h-[800px] flex flex-col">
-            <h3 className="text-xl font-semibold mb-4 flex items-center space-x-2">
-              <ApperIcon name="Layers" className="w-5 h-5 text-primary-500" />
-              <span>Background Library</span>
-            </h3>
-            
-            {/* Search */}
-            <div className="relative mb-4">
-              <ApperIcon name="Search" className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-surface-400" />
-              <input
-                type="text"
-                placeholder="Search backgrounds..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-surface-100 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-300"
-              />
-            </div>
-
-            {/* Categories */}
-            <div className="flex flex-wrap gap-2 mb-4">
-              {categories.map(category => (
-                <button
-                  key={category}
-                  onClick={() => setActiveCategory(category)}
-                  className={`px-3 py-1 rounded-lg text-sm font-medium transition-all duration-300 ${
-                    activeCategory === category
-                      ? 'bg-primary-500 text-white shadow-card'
-                      : 'bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-400 hover:bg-surface-200 dark:hover:bg-surface-600'
-                  }`}
-                >
-                  {category.charAt(0).toUpperCase() + category.slice(1)}
-                </button>
-              ))}
-            </div>
-
-            {/* Background Grid */}
-            <div className="flex-1 overflow-y-auto scrollbar-hide">
-              {loading ? (
-                <div className="flex items-center justify-center py-12">
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                  >
-                    <ApperIcon name="Loader2" className="w-8 h-8 text-primary-500" />
-                  </motion.div>
-                </div>
-              ) : error ? (
-                <div className="text-center py-12">
-                  <ApperIcon name="AlertCircle" className="w-12 h-12 text-red-500 mx-auto mb-3" />
-                  <p className="text-red-600 dark:text-red-400">{error}</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 gap-3">
-                  <AnimatePresence>
-                    {filteredBackgrounds.map((background, index) => (
-                      <motion.div
-                        key={background.id}
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.8 }}
-                        transition={{ duration: 0.3, delay: index * 0.05 }}
-                        className={`relative aspect-square rounded-lg overflow-hidden cursor-pointer transition-all duration-300 ${
-                          selectedBackground?.id === background.id
-                            ? 'ring-2 ring-primary-500 ring-offset-2 ring-offset-white dark:ring-offset-surface-800'
-                            : 'hover:scale-105 hover:shadow-card'
-                        }`}
-                        onClick={() => handleBackgroundSelect(background)}
-                      >
-                        <img
-                          src={background.thumbnailUrl}
-                          alt={background.name}
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                        />
-                        {selectedBackground?.id === background.id && (
-                          <div className="absolute inset-0 bg-primary-500/20 flex items-center justify-center">
-                            <div className="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center">
-                              <ApperIcon name="Check" className="w-5 h-5 text-white" />
-                            </div>
-                          </div>
-                        )}
-                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
-                          <p className="text-white text-xs font-medium truncate">
-                            {background.name}
-                          </p>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </AnimatePresence>
                 </div>
               )}
             </div>
