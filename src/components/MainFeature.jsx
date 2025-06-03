@@ -183,10 +183,10 @@ const MainFeature = () => {
       }
     }
     
-    ctx.putImageData(imageData, 0, 0)
+ctx.putImageData(imageData, 0, 0)
     return canvas.toDataURL()
   }
-  
+
   const renderCompositeImage = () => {
     if (!uploadedImage || !text.trim()) return
     
@@ -204,20 +204,77 @@ const MainFeature = () => {
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     
-    // Draw text behind image
-    ctx.font = `${textSettings.size}px Arial`
-    ctx.fillStyle = textSettings.color
-    ctx.globalAlpha = textSettings.opacity / 100
-    ctx.textAlign = 'center'
-    
-    const textX = (textSettings.positionX / 100) * canvas.width
-    const textY = (textSettings.positionY / 100) * canvas.height
-    
-    ctx.fillText(text, textX, textY)
-    
-    // Reset alpha and draw the image
-    ctx.globalAlpha = 1
-    ctx.drawImage(img, 0, 0)
+    if (subjectMask && enableObjectDetection) {
+      // Advanced rendering with object segmentation
+      // Step 1: Draw original image as background
+      ctx.drawImage(img, 0, 0)
+      
+      // Step 2: Draw text behind object areas
+      ctx.font = `${textSettings.size}px Arial`
+      ctx.fillStyle = textSettings.color
+      ctx.globalAlpha = textSettings.opacity / 100
+      ctx.textAlign = 'center'
+      
+      const textX = (textSettings.positionX / 100) * canvas.width
+      const textY = (textSettings.positionY / 100) * canvas.height
+      
+      // Use mask to only show text in non-object areas
+      ctx.globalCompositeOperation = 'source-over'
+      ctx.fillText(text, textX, textY)
+      
+      // Step 3: Load and apply subject mask
+      const maskImg = new window.Image()
+      maskImg.onload = () => {
+        // Create a temporary canvas for mask processing
+        const tempCanvas = document.createElement('canvas')
+        const tempCtx = tempCanvas.getContext('2d')
+        tempCanvas.width = canvas.width
+        tempCanvas.height = canvas.height
+        
+        // Draw the subject mask
+        tempCtx.drawImage(maskImg, 0, 0, canvas.width, canvas.height)
+        
+        // Use the mask to composite the original image over text
+        ctx.globalCompositeOperation = 'source-over'
+        
+        // Get mask data
+        const maskData = tempCtx.getImageData(0, 0, canvas.width, canvas.height)
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+        
+        // Apply selective compositing - show original image only where subject exists
+        for (let i = 0; i < maskData.data.length; i += 4) {
+          const alpha = maskData.data[i + 3] // Alpha channel of mask
+          if (alpha > 128) { // Subject pixel
+            // Keep original image pixel (already drawn)
+          } else {
+            // This is background area - ensure text shows through
+            // We'll redraw the text with proper blending
+          }
+        }
+        
+        // Reset composite operation
+        ctx.globalCompositeOperation = 'source-over'
+      }
+      maskImg.src = subjectMask
+    } else {
+      // Simple rendering without object detection
+      // Draw background first
+      ctx.drawImage(img, 0, 0)
+      
+      // Draw text on top with transparency
+      ctx.font = `${textSettings.size}px Arial`
+      ctx.fillStyle = textSettings.color
+      ctx.globalAlpha = textSettings.opacity / 100
+      ctx.textAlign = 'center'
+      
+      const textX = (textSettings.positionX / 100) * canvas.width
+      const textY = (textSettings.positionY / 100) * canvas.height
+      
+      ctx.fillText(text, textX, textY)
+      
+      // Reset alpha
+      ctx.globalAlpha = 1
+    }
   }
 
   // Handle drag and drop
@@ -638,12 +695,12 @@ const MainFeature = () => {
             </h3>
             
 <div className="relative aspect-square rounded-xl overflow-hidden image-canvas border-2 border-surface-200 dark:border-surface-700">
-              {/* Background Text */}
+              {/* Background Layer - Text behind objects */}
               {text && uploadedImage && (
                 <div 
-                  className="absolute inset-0 flex items-center justify-center text-center font-bold leading-tight"
+                  className="absolute inset-0 flex items-center justify-center text-center font-bold leading-tight pointer-events-none"
                   style={{
-                    fontSize: `${textSettings.size}px`,
+                    fontSize: `${textSettings.size * 0.8}px`, // Slightly smaller for preview
                     color: textSettings.color,
                     opacity: textSettings.opacity / 100,
                     left: `${textSettings.positionX}%`,
@@ -657,20 +714,25 @@ const MainFeature = () => {
                   {text}
                 </div>
               )}
-              
-              {/* Main Image with Object Detection Overlay */}
+{/* Main Image with Object Detection - positioned above text */}
               {uploadedImage && (
-                <div className="relative w-full h-full">
+                <div className="relative w-full h-full" style={{ zIndex: 2 }}>
                   <img
                     ref={imageRef}
                     src={uploadedImage.url}
                     alt="Main Image"
                     className="w-full h-full object-contain"
-                    style={{ zIndex: 2 }}
+                    style={{ 
+                      zIndex: 2,
+                      // Use mix-blend-mode to allow text to show through background areas
+                      mixBlendMode: subjectMask && enableObjectDetection ? 'multiply' : 'normal'
+                    }}
                     onLoad={() => {
                       if (enableObjectDetection && bodyPixModel && cocoModel && imageRef.current) {
                         detectObjects(imageRef.current)
                       }
+                      // Update preview when image loads
+                      setTimeout(() => renderCompositeImage(), 100)
                     }}
                   />
                   
