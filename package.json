@@ -15,7 +15,11 @@
     "react-router-dom": "^6.15.0",
     "framer-motion": "^10.16.4",
     "react-toastify": "^11.0.5",
-    "lucide-react": "^0.299.0"
+    "lucide-react": "^0.299.0",
+    "@tensorflow/tfjs": "^4.15.0",
+    "@tensorflow/tfjs-backend-webgl": "^4.15.0",
+    "@tensorflow-models/body-pix": "^2.2.1",
+    "@tensorflow-models/coco-ssd": "^2.2.2"
   },
   "devDependencies": {
     "@types/react": "^18.2.15",

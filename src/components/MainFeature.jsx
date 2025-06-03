@@ -1,6 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'react-toastify'
+import * as tf from '@tensorflow/tfjs'
+import * as bodyPix from '@tensorflow-models/body-pix'
+import * as cocoSsd from '@tensorflow-models/coco-ssd'
 import ApperIcon from './ApperIcon'
 import backgroundService from '../services/api/backgroundService'
 import imageService from '../services/api/imageService'
@@ -34,27 +37,52 @@ const MainFeature = () => {
   const [isDragging, setIsDragging] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   
+  // Object detection state
+  const [detectedObjects, setDetectedObjects] = useState([])
+  const [bodyPixModel, setBodyPixModel] = useState(null)
+  const [cocoModel, setCocoModel] = useState(null)
+  const [isDetecting, setIsDetecting] = useState(false)
+  const [detectionConfidence, setDetectionConfidence] = useState(0.6)
+  const [subjectMask, setSubjectMask] = useState(null)
+  const [enableObjectDetection, setEnableObjectDetection] = useState(true)
+  
   const fileInputRef = useRef(null)
   const canvasRef = useRef(null)
-
-  // Load backgrounds on component mount
+  const imageRef = useRef(null)
+  const previewCanvasRef = useRef(null)
+// Load TensorFlow models on component mount
   useEffect(() => {
-    const loadBackgrounds = async () => {
+    const loadModels = async () => {
       setLoading(true)
       try {
-        const result = await backgroundService.getAll()
-        setBackgrounds(result || [])
+        // Load TensorFlow.js backend
+        await tf.ready()
+        
+        // Load BodyPix model for person segmentation
+        const bodyPixNet = await bodyPix.load({
+          architecture: 'MobileNetV1',
+          outputStride: 16,
+          multiplier: 0.75,
+          quantBytes: 2
+        })
+        setBodyPixModel(bodyPixNet)
+        
+        // Load COCO-SSD model for object detection
+        const cocoNet = await cocoSsd.load()
+        setCocoModel(cocoNet)
+        
+        toast.success("AI models loaded successfully!")
       } catch (err) {
         setError(err.message)
-        toast.error("Failed to load backgrounds")
+        toast.error("Failed to load AI models")
       } finally {
         setLoading(false)
       }
     }
-    loadBackgrounds()
+    loadModels()
   }, [])
 
-  // Handle file upload
+// Handle file upload with object detection
   const handleFileUpload = async (file) => {
     if (!file || !file.type.startsWith('image/')) {
       toast.error("Please upload a valid image file")
@@ -65,7 +93,8 @@ const MainFeature = () => {
       toast.error("File size must be less than 10MB")
       return
     }
-setIsProcessing(true)
+
+    setIsProcessing(true)
     try {
       const reader = new FileReader()
       reader.onload = async (e) => {
@@ -80,6 +109,12 @@ setIsProcessing(true)
           
           const savedImage = await imageService.create(imageData)
           setUploadedImage(savedImage)
+          
+          // Perform object detection if enabled and models are loaded
+          if (enableObjectDetection && bodyPixModel && cocoModel) {
+            await detectObjects(img)
+          }
+          
           toast.success("Image uploaded successfully!")
           setIsProcessing(false)
         }
@@ -91,6 +126,98 @@ setIsProcessing(true)
       toast.error("Failed to upload image")
       setIsProcessing(false)
     }
+  }
+
+// Object detection functions
+  const detectObjects = async (imageElement) => {
+    if (!bodyPixModel || !cocoModel) return
+    
+    setIsDetecting(true)
+    try {
+      // Detect people using BodyPix
+      const personSegmentation = await bodyPixModel.segmentPerson(imageElement)
+      
+      // Detect general objects using COCO-SSD
+      const objectPredictions = await cocoModel.detect(imageElement)
+      
+      // Filter predictions by confidence
+      const filteredPredictions = objectPredictions.filter(
+        prediction => prediction.score >= detectionConfidence
+      )
+      
+      setDetectedObjects(filteredPredictions)
+      
+      // Generate subject mask for people
+      if (personSegmentation) {
+        const mask = await generateSubjectMask(imageElement, personSegmentation)
+        setSubjectMask(mask)
+      }
+      
+      toast.success(`Detected ${filteredPredictions.length} objects`)
+    } catch (err) {
+      toast.error("Object detection failed")
+      console.error(err)
+    } finally {
+      setIsDetecting(false)
+    }
+  }
+  
+  const generateSubjectMask = async (imageElement, segmentation) => {
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+    canvas.width = imageElement.width
+    canvas.height = imageElement.height
+    
+    const imageData = ctx.createImageData(canvas.width, canvas.height)
+    const data = imageData.data
+    
+    for (let i = 0; i < segmentation.data.length; i++) {
+      const pixelIndex = i * 4
+      if (segmentation.data[i] === 1) { // Person pixel
+        data[pixelIndex] = 255     // R
+        data[pixelIndex + 1] = 255 // G
+        data[pixelIndex + 2] = 255 // B
+        data[pixelIndex + 3] = 255 // A
+      } else {
+        data[pixelIndex + 3] = 0   // Transparent
+      }
+    }
+    
+    ctx.putImageData(imageData, 0, 0)
+    return canvas.toDataURL()
+  }
+  
+  const renderCompositeImage = () => {
+    if (!uploadedImage || !text.trim()) return
+    
+    const canvas = previewCanvasRef.current
+    if (!canvas) return
+    
+    const ctx = canvas.getContext('2d')
+    const img = imageRef.current
+    
+    if (!img) return
+    
+    canvas.width = img.naturalWidth
+    canvas.height = img.naturalHeight
+    
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    
+    // Draw text behind image
+    ctx.font = `${textSettings.size}px Arial`
+    ctx.fillStyle = textSettings.color
+    ctx.globalAlpha = textSettings.opacity / 100
+    ctx.textAlign = 'center'
+    
+    const textX = (textSettings.positionX / 100) * canvas.width
+    const textY = (textSettings.positionY / 100) * canvas.height
+    
+    ctx.fillText(text, textX, textY)
+    
+    // Reset alpha and draw the image
+    ctx.globalAlpha = 1
+    ctx.drawImage(img, 0, 0)
   }
 
   // Handle drag and drop
@@ -113,36 +240,7 @@ setIsProcessing(true)
     setIsDragging(false)
   }
 
-  // Filter backgrounds
-  const filteredBackgrounds = backgrounds?.filter(bg => {
-    const matchesCategory = activeCategory === 'all' || bg.category === activeCategory
-    const matchesSearch = bg.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         bg.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
-    return matchesCategory && matchesSearch
-  }) || []
-
-  // Get unique categories
-  const categories = ['all', ...new Set(backgrounds?.map(bg => bg.category) || [])]
-
-  // Handle background selection
-  const handleBackgroundSelect = async (background) => {
-    try {
-      setSelectedBackground(background)
-      toast.success(`Background "${background.name}" selected!`)
-    } catch (err) {
-      toast.error("Failed to select background")
-    }
-  }
-
-// Handle adjustment changes
-  const handleAdjustmentChange = (key, value) => {
-    setAdjustments(prev => ({
-      ...prev,
-      [key]: value
-    }))
-  }
-
-  // Handle text setting changes
+// Handle text setting changes
   const handleTextSettingChange = (key, value) => {
     setTextSettings(prev => ({
       ...prev,
@@ -150,31 +248,34 @@ setIsProcessing(true)
     }))
   }
 
+  // Re-run object detection with new confidence
+  const handleDetectionConfidenceChange = async (newConfidence) => {
+    setDetectionConfidence(newConfidence)
+    if (uploadedImage && imageRef.current && enableObjectDetection) {
+      await detectObjects(imageRef.current)
+    }
+  }
+
   // Generate composite and download
   const handleDownload = async () => {
-    if (!uploadedImage || !selectedBackground) {
-      toast.error("Please upload an image and select a background first")
+    if (!uploadedImage || !text.trim()) {
+      toast.error("Please upload an image and add text first")
       return
     }
 
     setIsProcessing(true)
     try {
-      const compositeData = {
-        foregroundImage: uploadedImage,
-        background: selectedBackground,
-        adjustments: adjustments,
-        createdAt: new Date().toISOString()
+      renderCompositeImage()
+      
+      const canvas = previewCanvasRef.current
+      if (canvas) {
+        const link = document.createElement('a')
+        link.download = `text-behind-image-${Date.now()}.png`
+        link.href = canvas.toDataURL()
+        link.click()
+        
+        toast.success("Image downloaded successfully!")
       }
-      
-      const savedComposite = await compositeImageService.create(compositeData)
-      
-      // Create download link
-      const link = document.createElement('a')
-      link.download = `backdropify-${Date.now()}.png`
-      link.href = uploadedImage.url // In a real app, this would be the composite image
-      link.click()
-      
-      toast.success("Image downloaded successfully!")
     } catch (err) {
       toast.error("Failed to download image")
     } finally {
@@ -182,11 +283,13 @@ setIsProcessing(true)
     }
   }
 
-// Reset all
+  // Reset all
   const handleReset = () => {
     setUploadedImage(null)
     setSelectedBackground(null)
     setText('')
+    setDetectedObjects([])
+    setSubjectMask(null)
     setTextSettings({
       size: 48,
       color: '#000000',
@@ -285,11 +388,11 @@ setIsProcessing(true)
             </div>
           </div>
 
-          {/* Text Input Section */}
+{/* Text Input Section */}
           <div className="bg-white/80 dark:bg-surface-800/80 backdrop-blur-xl rounded-2xl p-6 shadow-card border border-surface-200/50 dark:border-surface-700/50">
             <h3 className="text-xl font-semibold mb-4 flex items-center space-x-2">
               <ApperIcon name="Type" className="w-5 h-5 text-primary-500" />
-              <span>Add Text</span>
+              <span>Add Text Behind Object</span>
             </h3>
             
             <div className="space-y-4">
@@ -300,13 +403,90 @@ setIsProcessing(true)
                 <textarea
                   value={text}
                   onChange={(e) => setText(e.target.value)}
-                  placeholder="Enter the text you want behind your image..."
+                  placeholder="Enter the text you want behind the detected object..."
                   rows={3}
                   className="w-full px-4 py-3 bg-surface-100 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-300 resize-none"
                 />
               </div>
             </div>
           </div>
+
+          {/* Object Detection Controls */}
+          {bodyPixModel && cocoModel && (
+            <motion.div 
+              className="bg-white/80 dark:bg-surface-800/80 backdrop-blur-xl rounded-2xl p-6 shadow-card border border-surface-200/50 dark:border-surface-700/50"
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.4 }}
+            >
+              <h3 className="text-xl font-semibold mb-4 flex items-center space-x-2">
+                <ApperIcon name="Brain" className="w-5 h-5 text-primary-500" />
+                <span>Object Detection</span>
+                {isDetecting && (
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  >
+                    <ApperIcon name="Loader2" className="w-4 h-4 text-primary-500" />
+                  </motion.div>
+                )}
+              </h3>
+              
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium text-surface-700 dark:text-surface-300">
+                    Enable Object Detection
+                  </label>
+                  <button
+                    onClick={() => setEnableObjectDetection(!enableObjectDetection)}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                      enableObjectDetection ? 'bg-primary-500' : 'bg-surface-300 dark:bg-surface-600'
+                    }`}
+                  >
+                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      enableObjectDetection ? 'translate-x-6' : 'translate-x-1'
+                    }`} />
+                  </button>
+                </div>
+
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <label className="text-sm font-medium text-surface-700 dark:text-surface-300">
+                      Detection Confidence
+                    </label>
+                    <span className="text-sm text-surface-500">
+                      {Math.round(detectionConfidence * 100)}%
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min={0.1}
+                    max={1}
+                    step={0.1}
+                    value={detectionConfidence}
+                    onChange={(e) => handleDetectionConfidenceChange(parseFloat(e.target.value))}
+                    className="w-full h-2 bg-surface-200 dark:bg-surface-700 rounded-lg appearance-none cursor-pointer slider"
+                  />
+                </div>
+
+                {detectedObjects.length > 0 && (
+                  <div>
+                    <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
+                      Detected Objects ({detectedObjects.length})
+                    </label>
+                    <div className="space-y-2">
+                      {detectedObjects.map((obj, index) => (
+                        <div key={index} className="flex items-center justify-between p-2 bg-surface-100 dark:bg-surface-700 rounded-lg">
+                          <span className="text-sm font-medium capitalize">{obj.class}</span>
+                          <span className="text-xs text-surface-500">{Math.round(obj.score * 100)}%</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
 
           {/* Text Controls */}
           {uploadedImage && text && (
@@ -457,9 +637,9 @@ setIsProcessing(true)
               <span>Live Preview</span>
             </h3>
             
-            <div className="relative aspect-square rounded-xl overflow-hidden image-canvas border-2 border-surface-200 dark:border-surface-700">
+<div className="relative aspect-square rounded-xl overflow-hidden image-canvas border-2 border-surface-200 dark:border-surface-700">
               {/* Background Text */}
-              {text && (
+              {text && uploadedImage && (
                 <div 
                   className="absolute inset-0 flex items-center justify-center text-center font-bold leading-tight"
                   style={{
@@ -478,24 +658,66 @@ setIsProcessing(true)
                 </div>
               )}
               
-              {/* Foreground Image */}
+              {/* Main Image with Object Detection Overlay */}
               {uploadedImage && (
-                <img
-                  src={uploadedImage.url}
-                  alt="Foreground"
-                  className="absolute inset-0 w-full h-full object-contain"
-                  style={{
-                    zIndex: 2
-                  }}
-                />
+                <div className="relative w-full h-full">
+                  <img
+                    ref={imageRef}
+                    src={uploadedImage.url}
+                    alt="Main Image"
+                    className="w-full h-full object-contain"
+                    style={{ zIndex: 2 }}
+                    onLoad={() => {
+                      if (enableObjectDetection && bodyPixModel && cocoModel && imageRef.current) {
+                        detectObjects(imageRef.current)
+                      }
+                    }}
+                  />
+                  
+                  {/* Object Detection Overlay */}
+                  {detectedObjects.length > 0 && (
+                    <div className="absolute inset-0" style={{ zIndex: 3 }}>
+                      {detectedObjects.map((obj, index) => {
+                        const imageElement = imageRef.current
+                        if (!imageElement) return null
+                        
+                        const scaleX = imageElement.offsetWidth / imageElement.naturalWidth
+                        const scaleY = imageElement.offsetHeight / imageElement.naturalHeight
+                        
+                        return (
+                          <div
+                            key={index}
+                            className="absolute border-2 border-primary-500 bg-primary-500/20"
+                            style={{
+                              left: obj.bbox[0] * scaleX,
+                              top: obj.bbox[1] * scaleY,
+                              width: obj.bbox[2] * scaleX,
+                              height: obj.bbox[3] * scaleY,
+                            }}
+                          >
+                            <div className="absolute -top-6 left-0 bg-primary-500 text-white px-2 py-1 text-xs rounded">
+                              {obj.class} ({Math.round(obj.score * 100)}%)
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
               )}
+              
+              {/* Hidden canvas for composite rendering */}
+              <canvas
+                ref={previewCanvasRef}
+                className="hidden"
+              />
               
               {!uploadedImage && (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="text-center text-surface-400">
                     <ApperIcon name="ImageIcon" className="w-16 h-16 mx-auto mb-3" />
-                    <p className="text-lg font-medium">Preview Area</p>
-                    <p className="text-sm">Upload an image and add text</p>
+                    <p className="text-lg font-medium">AI-Powered Preview</p>
+                    <p className="text-sm">Upload an image to detect objects and add text behind them</p>
                   </div>
                 </div>
               )}
