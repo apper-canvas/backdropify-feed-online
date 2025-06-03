@@ -19,15 +19,48 @@ const imageService = {
     return { ...image }
   },
 
-  async create(imageData) {
+async create(imageData) {
     await delay(500)
+    
+    // Handle custom naming and tagging
+    const customName = imageData.customName?.trim()
+    const displayName = customName || imageData.name
+    
     const newImage = {
       ...imageData,
       id: Date.now().toString(),
+      displayName: displayName,
+      tags: customName ? [customName.toLowerCase()] : [],
       uploadedAt: new Date().toISOString()
     }
+    
     images.push(newImage)
     return { ...newImage }
+  },
+
+  async tagImage(id, tagName) {
+    await delay(200)
+    
+    if (!tagName || !tagName.trim()) {
+      throw new Error('Tag name cannot be empty')
+    }
+    
+    const index = images.findIndex(img => img.id === id)
+    if (index === -1) {
+      throw new Error('Image not found')
+    }
+    
+    const trimmedTag = tagName.trim()
+    const updatedImage = {
+      ...images[index],
+      displayName: trimmedTag,
+      customName: trimmedTag,
+      tags: [...(images[index].tags || []), trimmedTag.toLowerCase()],
+      updatedAt: new Date().toISOString()
+    }
+    
+    images[index] = updatedImage
+    return { ...updatedImage }
   },
 
   async update(id, updates) {

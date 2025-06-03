@@ -239,8 +239,8 @@ setIsProcessing(true)
                     alt="Uploaded" 
                     className="w-20 h-20 object-cover rounded-lg shadow-card"
                   />
-                  <p className="text-sm font-medium text-surface-900 dark:text-surface-100">
-                    {uploadedImage.name}
+<p className="text-sm font-medium text-surface-900 dark:text-surface-100">
+                    {uploadedImage.displayName || uploadedImage.name}
                   </p>
                   <p className="text-xs text-surface-500">
                     {uploadedImage.dimensions?.width} × {uploadedImage.dimensions?.height}
