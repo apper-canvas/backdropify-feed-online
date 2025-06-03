@@ -15,6 +15,7 @@ const MainFeature = () => {
   const [error, setError] = useState(null)
   const [activeCategory, setActiveCategory] = useState('all')
   const [searchTerm, setSearchTerm] = useState('')
+  const [backgroundName, setBackgroundName] = useState('')
   const [adjustments, setAdjustments] = useState({
     opacity: 100,
     blur: 0,
@@ -57,11 +58,11 @@ const MainFeature = () => {
       return
     }
 
-    setIsProcessing(true)
+setIsProcessing(true)
     try {
       const reader = new FileReader()
       reader.onload = async (e) => {
-        const img = new Image()
+        const img = new window.Image()
         img.onload = async () => {
           const imageData = {
             url: e.target.result,
@@ -256,11 +257,24 @@ const MainFeature = () => {
                       or click to browse
                     </p>
                   </div>
-                </div>
+</div>
               )}
             </div>
+            
+            {/* Background Name Input */}
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
+                Background Name (Optional)
+              </label>
+              <input
+                type="text"
+                value={backgroundName}
+                onChange={(e) => setBackgroundName(e.target.value)}
+                placeholder="Enter a name for this background..."
+                className="w-full px-4 py-2 bg-surface-100 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-300"
+              />
+            </div>
           </div>
-
           {/* Adjustment Controls */}
           {uploadedImage && selectedBackground && (
             <motion.div 
