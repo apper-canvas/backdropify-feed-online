@@ -32,13 +32,13 @@ const Home = () => {
             >
               <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-xl flex items-center justify-center shadow-card">
                 <ApperIcon name="Image" className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-              </div>
+</div>
               <div>
                 <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">
-                  BackDropify
+                  Text Behind Image
                 </h1>
                 <p className="text-xs sm:text-sm text-surface-600 dark:text-surface-400 hidden sm:block">
-                  Professional Background Editor
+                  Add Text Behind Objects
                 </p>
               </div>
             </motion.div>
@@ -162,14 +162,14 @@ const Home = () => {
               whileHover={{ scale: 1.05 }}
             >
               <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-lg flex items-center justify-center">
-                <ApperIcon name="Image" className="w-4 h-4 text-white" />
+<ApperIcon name="Image" className="w-4 h-4 text-white" />
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">
-                BackDropify
+                Text Behind Image
               </span>
             </motion.div>
             <p className="text-surface-600 dark:text-surface-400 text-sm sm:text-base">
-              © 2024 BackDropify. Creating beautiful image compositions made simple.
+              © 2024 Text Behind Image. Adding text behind objects made simple.
             </p>
           </div>
         </div>
