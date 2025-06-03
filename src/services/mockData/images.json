@@ -1,0 +1,57 @@
+[
+  {
+    "id": "img_001",
+    "url": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=600&fit=crop",
+    "name": "portrait-sample-1.jpg",
+    "size": 1248576,
+    "dimensions": {
+      "width": 800,
+      "height": 600
+    },
+    "uploadedAt": "2024-01-15T10:30:00Z"
+  },
+  {
+    "id": "img_002",
+    "url": "https://images.unsplash.com/photo-1494790108755-2616c6dd93e5?w=800&h=800&fit=crop",
+    "name": "profile-photo.png",
+    "size": 2157824,
+    "dimensions": {
+      "width": 800,
+      "height": 800
+    },
+    "uploadedAt": "2024-01-14T15:45:00Z"
+  },
+  {
+    "id": "img_003",
+    "url": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=600&h=800&fit=crop",
+    "name": "businessman-headshot.jpg",
+    "size": 1875432,
+    "dimensions": {
+      "width": 600,
+      "height": 800
+    },
+    "uploadedAt": "2024-01-13T09:20:00Z"
+  },
+  {
+    "id": "img_004",
+    "url": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=700&h=700&fit=crop",
+    "name": "woman-portrait.jpg",
+    "size": 1654321,
+    "dimensions": {
+      "width": 700,
+      "height": 700
+    },
+    "uploadedAt": "2024-01-12T14:15:00Z"
+  },
+  {
+    "id": "img_005",
+    "url": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&h=800&fit=crop",
+    "name": "casual-portrait.png",
+    "size": 2234567,
+    "dimensions": {
+      "width": 600,
+      "height": 800
+    },
+    "uploadedAt": "2024-01-11T11:30:00Z"
+  }
+]

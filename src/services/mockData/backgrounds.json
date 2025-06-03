@@ -1,0 +1,122 @@
+[
+  {
+    "id": "bg_001",
+    "name": "Sunset Gradient",
+    "category": "abstract",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=400&fit=crop",
+    "fullUrl": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&h=1200&fit=crop",
+    "tags": ["gradient", "sunset", "warm", "abstract", "colorful"]
+  },
+  {
+    "id": "bg_002",
+    "name": "Mountain Landscape",
+    "category": "nature",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=400&fit=crop",
+    "fullUrl": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&h=1200&fit=crop",
+    "tags": ["mountains", "landscape", "nature", "scenic", "peaceful"]
+  },
+  {
+    "id": "bg_003",
+    "name": "Ocean Waves",
+    "category": "nature",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=400&h=400&fit=crop",
+    "fullUrl": "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=1200&h=1200&fit=crop",
+    "tags": ["ocean", "waves", "blue", "water", "calming"]
+  },
+  {
+    "id": "bg_004",
+    "name": "Urban Skyline",
+    "category": "city",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1f?w=400&h=400&fit=crop",
+    "fullUrl": "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1f?w=1200&h=1200&fit=crop",
+    "tags": ["city", "urban", "skyline", "buildings", "modern"]
+  },
+  {
+    "id": "bg_005",
+    "name": "Geometric Pattern",
+    "category": "abstract",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1557683316-973673baf926?w=400&h=400&fit=crop",
+    "fullUrl": "https://images.unsplash.com/photo-1557683316-973673baf926?w=1200&h=1200&fit=crop",
+    "tags": ["geometric", "pattern", "abstract", "modern", "design"]
+  },
+  {
+    "id": "bg_006",
+    "name": "Forest Path",
+    "category": "nature",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&h=400&fit=crop",
+    "fullUrl": "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1200&h=1200&fit=crop",
+    "tags": ["forest", "path", "trees", "green", "nature"]
+  },
+  {
+    "id": "bg_007",
+    "name": "Marble Texture",
+    "category": "texture",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1520637836862-4d197d17c43a?w=400&h=400&fit=crop",
+    "fullUrl": "https://images.unsplash.com/photo-1520637836862-4d197d17c43a?w=1200&h=1200&fit=crop",
+    "tags": ["marble", "texture", "elegant", "luxurious", "pattern"]
+  },
+  {
+    "id": "bg_008",
+    "name": "Galaxy Stars",
+    "category": "space",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1502134249126-9f3755a50d78?w=400&h=400&fit=crop",
+    "fullUrl": "https://images.unsplash.com/photo-1502134249126-9f3755a50d78?w=1200&h=1200&fit=crop",
+    "tags": ["space", "galaxy", "stars", "cosmic", "universe"]
+  },
+  {
+    "id": "bg_009",
+    "name": "Coffee Shop",
+    "category": "interior",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=400&h=400&fit=crop",
+    "fullUrl": "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=1200&h=1200&fit=crop",
+    "tags": ["coffee", "interior", "cozy", "warm", "cafe"]
+  },
+  {
+    "id": "bg_010",
+    "name": "Minimalist White",
+    "category": "minimal",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1493238792000-8113da705763?w=400&h=400&fit=crop",
+    "fullUrl": "https://images.unsplash.com/photo-1493238792000-8113da705763?w=1200&h=1200&fit=crop",
+    "tags": ["minimal", "white", "clean", "simple", "modern"]
+  },
+  {
+    "id": "bg_011",
+    "name": "Watercolor Splash",
+    "category": "artistic",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&h=400&fit=crop",
+    "fullUrl": "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=1200&h=1200&fit=crop",
+    "tags": ["watercolor", "artistic", "creative", "splash", "colorful"]
+  },
+  {
+    "id": "bg_012",
+    "name": "Neon Lights",
+    "category": "abstract",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=400&h=400&fit=crop",
+    "fullUrl": "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=1200&h=1200&fit=crop",
+    "tags": ["neon", "lights", "vibrant", "electric", "modern"]
+  },
+  {
+    "id": "bg_013",
+    "name": "Wooden Texture",
+    "category": "texture",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1506976785307-8732e854ad03?w=400&h=400&fit=crop",
+    "fullUrl": "https://images.unsplash.com/photo-1506976785307-8732e854ad03?w=1200&h=1200&fit=crop",
+    "tags": ["wood", "texture", "natural", "rustic", "organic"]
+  },
+  {
+    "id": "bg_014",
+    "name": "Cloud Formation",
+    "category": "nature",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=400&fit=crop",
+    "fullUrl": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&h=1200&fit=crop",
+    "tags": ["clouds", "sky", "peaceful", "dreamy", "soft"]
+  },
+  {
+    "id": "bg_015",
+    "name": "Industrial Metal",
+    "category": "texture",
+    "thumbnailUrl": "https://images.unsplash.com/photo-1518709074710-9f1d0e5aeda1?w=400&h=400&fit=crop",
+    "fullUrl": "https://images.unsplash.com/photo-1518709074710-9f1d0e5aeda1?w=1200&h=1200&fit=crop",
+    "tags": ["metal", "industrial", "texture", "modern", "urban"]
+  }
+]

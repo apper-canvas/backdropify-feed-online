@@ -1,0 +1,68 @@
+[
+  {
+    "id": "comp_001",
+    "foregroundImage": {
+      "id": "img_001",
+      "url": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=600&fit=crop",
+      "name": "portrait-sample-1.jpg"
+    },
+    "background": {
+      "id": "bg_001",
+      "name": "Sunset Gradient",
+      "fullUrl": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&h=1200&fit=crop"
+    },
+    "adjustments": {
+      "opacity": 85,
+      "blur": 2,
+      "scale": 120,
+      "positionX": 45,
+      "positionY": 55
+    },
+    "processedUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=600&fit=crop",
+    "createdAt": "2024-01-15T16:45:00Z"
+  },
+  {
+    "id": "comp_002",
+    "foregroundImage": {
+      "id": "img_002",
+      "url": "https://images.unsplash.com/photo-1494790108755-2616c6dd93e5?w=800&h=800&fit=crop",
+      "name": "profile-photo.png"
+    },
+    "background": {
+      "id": "bg_004",
+      "name": "Urban Skyline",
+      "fullUrl": "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1f?w=1200&h=1200&fit=crop"
+    },
+    "adjustments": {
+      "opacity": 90,
+      "blur": 1,
+      "scale": 100,
+      "positionX": 50,
+      "positionY": 40
+    },
+    "processedUrl": "https://images.unsplash.com/photo-1494790108755-2616c6dd93e5?w=800&h=800&fit=crop",
+    "createdAt": "2024-01-14T20:30:00Z"
+  },
+  {
+    "id": "comp_003",
+    "foregroundImage": {
+      "id": "img_003",
+      "url": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=600&h=800&fit=crop",
+      "name": "businessman-headshot.jpg"
+    },
+    "background": {
+      "id": "bg_010",
+      "name": "Minimalist White",
+      "fullUrl": "https://images.unsplash.com/photo-1493238792000-8113da705763?w=1200&h=1200&fit=crop"
+    },
+    "adjustments": {
+      "opacity": 95,
+      "blur": 0,
+      "scale": 110,
+      "positionX": 50,
+      "positionY": 45
+    },
+    "processedUrl": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=600&h=800&fit=crop",
+    "createdAt": "2024-01-13T12:15:00Z"
+  }
+]
